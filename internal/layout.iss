@@ -9,6 +9,29 @@ begin
   if IssConfigOnSupportLink <> nil then IssConfigOnSupportLink(Sender);
 end;
 
+procedure IssConfigFitHeader;
+var
+  RequiredHeight, LogoHeight, Difference: Integer;
+begin
+  { Measure using the current caption, font, width and DPI instead of reserving
+    a fixed single-line height. Page captions are assigned by Inno on navigation. }
+  WizardForm.PageNameLabel.AdjustHeight;
+  WizardForm.PageDescriptionLabel.Top := WizardForm.PageNameLabel.Top +
+    WizardForm.PageNameLabel.Height + ScaleY(8);
+  WizardForm.PageDescriptionLabel.AdjustHeight;
+  RequiredHeight := WizardForm.PageDescriptionLabel.Top +
+    WizardForm.PageDescriptionLabel.Height + ScaleY(16);
+  LogoHeight := WizardForm.WizardSmallBitmapImage.Top +
+    WizardForm.WizardSmallBitmapImage.Height + ScaleY(20);
+  if RequiredHeight < LogoHeight then RequiredHeight := LogoHeight;
+  if RequiredHeight < ScaleY({#IssConfigHeaderHeight}) then
+    RequiredHeight := ScaleY({#IssConfigHeaderHeight});
+  Difference := RequiredHeight - WizardForm.MainPanel.Height;
+  WizardForm.MainPanel.Height := RequiredHeight;
+  WizardForm.InnerNotebook.Top := WizardForm.InnerNotebook.Top + Difference;
+  WizardForm.InnerNotebook.Height := WizardForm.InnerNotebook.Height - Difference;
+end;
+
 procedure IssConfigInitializeLayout;
 var
   HeaderDifference, Margin, TextWidth, PathLeft, PathTop, PathHeight: Integer;
@@ -25,9 +48,12 @@ begin
     WizardForm.MainPanel.Width - Margin - ScaleX(48), ScaleY(20), ScaleX(48), ScaleY(48));
   TextWidth := WizardForm.WizardSmallBitmapImage.Left - Margin - ScaleX(16);
   WizardForm.PageNameLabel.SetBounds(Margin, ScaleY(18), TextWidth, ScaleY(34));
+  WizardForm.PageNameLabel.AutoSize := False;
+  WizardForm.PageNameLabel.WordWrap := True;
   WizardForm.PageNameLabel.Font.Size := 22;
   WizardForm.PageNameLabel.Font.Style := [fsBold];
   WizardForm.PageDescriptionLabel.SetBounds(Margin, ScaleY(60), TextWidth, ScaleY(24));
+  WizardForm.PageDescriptionLabel.AutoSize := False;
   WizardForm.PageDescriptionLabel.WordWrap := True;
 
   WizardForm.SelectDirBitmapImage.Visible := False;
@@ -81,4 +107,5 @@ begin
       CustomMessage('IssConfigIntroduction');
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall);
   end;
+  IssConfigFitHeader;
 end;

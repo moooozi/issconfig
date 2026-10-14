@@ -79,7 +79,7 @@ as `"00B9E8"`; the library converts them to Windows COLORREF values internally.
 | `IssConfigCompact` | `1`: compact destination-page layout; `0`: keep the standard wizard layout |
 | `IssConfigFolderBrowser` | `1`: custom Browse dialog; `0`: keep Inno's original browser |
 | `IssConfigHeightPercent` | `70`: compact wizard height as a percentage of its initial height |
-| `IssConfigMargin/HeaderHeight` | `24`, `88`: compact header dimensions |
+| `IssConfigMargin/HeaderHeight` | `24`, `88`: compact header margin and minimum height; grows to fit wrapped text |
 | `IssConfigPathHeight/ButtonHeight` | `36`, `32`: path container and wizard button heights |
 | `IssConfigHeading/Introduction` | Destination-page heading and description |
 | `IssConfigFolderLabel` | `Installation folder` |
@@ -87,7 +87,9 @@ as `"00B9E8"`; the library converts them to Windows COLORREF values internally.
 | `IssConfigFolderSuffix` | Empty: selected directory itself; otherwise append this subfolder |
 | `IssConfigSupportText` | Empty: optional link-label markup |
 
-Dimensions use Inno's scaling functions. The compact preset requires a visible
+Dimensions use Inno's scaling functions. Header labels are measured after page
+captions are assigned, and the header grows to fit wrapped headings and descriptions.
+The compact preset requires a visible
 destination page and the page-disable directives shown above; these directives
 remain consumer-owned. Turning the preset off does not change installer navigation.
 
