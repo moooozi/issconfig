@@ -7,6 +7,7 @@
 #include "internal/theme.iss"
 #include "internal/layout.iss"
 #include "internal/folder-browser.iss"
+#include "internal/action-pages.iss"
 
 procedure IssConfigInitialize;
 begin
@@ -24,6 +25,7 @@ begin
 #if IssConfigCompact
   IssConfigUpdatePage(PageID);
 #endif
+  IssConfigUpdateActionPage(PageID);
 end;
 
 procedure IssConfigShutdown;
@@ -106,6 +108,9 @@ end;
 #ifndef IssConfigLightScrollbarHover
 #define IssConfigLightScrollbarHover "909090"
 #endif
+#ifndef IssConfigWizardStyle
+#define IssConfigWizardStyle "modern dynamic hidebevels"
+#endif
 #ifndef IssConfigHeightPercent
 #define IssConfigHeightPercent 70
 #endif
@@ -148,6 +153,16 @@ end;
 #ifndef IssConfigBrowserHint
 #define IssConfigBrowserHint "Select a folder or enter an installation path."
 #endif
+
+; Keep Inno's native surfaces and the custom-painted controls on one palette.
+[Setup]
+WizardStyle={#IssConfigWizardStyle}
+WizardBackColor=#{#IssConfigLightBackground}
+WizardBackColorDynamicDark=#{#IssConfigDarkBackground}
+WizardImageBackColor=#{#IssConfigLightBackground}
+WizardImageBackColorDynamicDark=#{#IssConfigDarkBackground}
+WizardSmallImageBackColor=none
+WizardSmallImageBackColorDynamicDark=none
 
 [CustomMessages]
 IssConfigHeading={#IssConfigHeading}

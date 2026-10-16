@@ -29,12 +29,13 @@ class CompileTests(unittest.TestCase):
                 # Copy only the library: catches accidental dependencies on its host app.
                 library = Path(temp) / "issconfig"
                 shutil.copytree(ROOT, library, ignore=shutil.ignore_patterns("output", "__pycache__", ".git"))
-                result = subprocess.run(
-                    [ISCC, "/Q", *defines, "examples/minimal.iss"], cwd=library,
-                    capture_output=True, text=True, timeout=30,
-                )
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertGreater((library / "examples/output/example-notes-setup.exe").stat().st_size, 0)
+                for example, output in [("minimal", "example-notes-setup"), ("actions", "example-actions-setup")]:
+                    result = subprocess.run(
+                        [ISCC, "/Q", *defines, f"examples/{example}.iss"], cwd=library,
+                        capture_output=True, text=True, timeout=30,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertGreater((library / f"examples/output/{output}.exe").stat().st_size, 0)
 
 
 if __name__ == "__main__":

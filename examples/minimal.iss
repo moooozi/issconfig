@@ -20,11 +20,7 @@ DefaultDirName={localappdata}\Example Notes
 PrivilegesRequired=lowest
 OutputDir=output
 OutputBaseFilename=example-notes-setup
-WizardStyle=modern dynamic hidebevels
-WizardBackColor=#{#IssConfigLightBackground}
-WizardBackColorDynamicDark=#{#IssConfigDarkBackground}
-WizardImageBackColor=#{#IssConfigLightBackground}
-WizardImageBackColorDynamicDark=#{#IssConfigDarkBackground}
+
 #if IssConfigCompact
 DisableWelcomePage=yes
 DisableDirPage=no

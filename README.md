@@ -27,11 +27,7 @@ script; internal paths resolve relative to the library.
 AppName=My App
 AppVersion=1.0.0
 DefaultDirName={autopf}\My App
-WizardStyle=modern dynamic hidebevels
-WizardBackColor=#{#IssConfigLightBackground}
-WizardBackColorDynamicDark=#{#IssConfigDarkBackground}
-WizardImageBackColor=#{#IssConfigLightBackground}
-WizardImageBackColorDynamicDark=#{#IssConfigDarkBackground}
+
 DisableWelcomePage=yes
 DisableDirPage=no
 DisableProgramGroupPage=yes
@@ -67,6 +63,11 @@ functions and globals have the `IssConfig` prefix; `ISSCONFIG_*` macros are rese
 
 All overrides are optional. Colors are six-digit RGB strings without `#`, such
 as `"00B9E8"`; the library converts them to Windows COLORREF values internally.
+The default neutral/cyan palette is shared with Switchboot. The configuration
+include emits the matching `[Setup]` wizard style, light/dark background and
+image-background directives, so native surfaces and rounded controls agree by
+default. Do not repeat those directives in consumers; customize the palette
+through the defines below before including the library.
 
 | Defines | Defaults / purpose |
 | --- | --- |
@@ -76,6 +77,7 @@ as `"00B9E8"`; the library converts them to Windows COLORREF values internally.
 | `IssConfigLightButton/Hover/Pressed/Disabled/Muted` | `E5E5E5`, `D4D4D4`, `C5C5C5`, `ECECEC`, `909090` |
 | `IssConfigAccent/AccentHover/AccentPressed/AccentText` | `00B9E8`, `65D8F4`, `009DC5`, `000000` |
 | `IssConfigLightScrollbar/LightScrollbarHover` | `AAAAAA`, `909090`; dark scrollbars use the dark button colors |
+| `IssConfigWizardStyle` | `modern dynamic hidebevels`; applied to `[Setup]` automatically |
 | `IssConfigCompact` | `1`: compact destination-page layout; `0`: keep the standard wizard layout |
 | `IssConfigFolderBrowser` | `1`: custom Browse dialog; `0`: keep Inno's original browser |
 | `IssConfigHeightPercent` | `70`: compact wizard height as a percentage of its initial height |
@@ -102,14 +104,39 @@ For a support link, supply `IssConfigSupportText` and assign
 `IssConfigOnSupportLink := @YourHandler` before initialization. `YourHandler` has
 the signature `procedure YourHandler(Sender: TObject)`. The compact layout hides
 the link when no handler is assigned. URL selection and browser launching belong
-to the consumer. Standard layout consumers can use the lower-level
-`IssConfigWrapControl` helper to style their own controls; custom page placement
-and link controls remain their responsibility.
+to the consumer. `IssConfigWrapControl` is specific to edit fields and folder
+trees; do not pass buttons or arbitrary controls to it.
+
+## Action pages
+
+For maintenance screens or other pages with a small set of choices, create the
+page and register its buttons after `IssConfigInitialize`:
+
+```pascal
+Page := IssConfigCreateActionPage(wpWelcome,
+  'Example Notes is already installed', 'Choose an action for your installation.');
+RemoveButton := IssConfigAddPageAction(Page, 'Uninstall', @RemoveClicked, False);
+RepairButton := IssConfigAddPageAction(Page, 'Reinstall', @RepairClicked, False);
+OpenButton := IssConfigAddPageAction(Page, 'Launch', @OpenClicked, True);
+```
+
+Continue calling `IssConfigPageChanged` from `CurPageChanged`. Actions appear in
+registration order in the standard wizard footer, aligned to its right margin,
+with the same height and spacing as Install/Cancel. Widths account for caption
+text, and positions use Inno's scaling. Register at most one primary action per
+page; it gets default-button behavior and accent styling. Prefer a safe action
+rather than a destructive default. High-contrast mode retains native controls.
+
+The library hides standard navigation on action pages and restores it when
+leaving; actions belonging to other pages stay hidden. Application callbacks
+still own confirmation, uninstall/launch/install work, errors, and navigation.
+See `examples/actions.iss` for a visual-only example that changes no files or
+registrations. `examples/minimal.iss` remains the fresh-install example.
 
 ## Ownership and behavior
 
 The library owns visual drawing, layout and dialog mechanics. The consumer owns
-app identity, version, icon/image files and their `[Setup]` directives, privileges,
+app identity, version, icon/image files and their metadata directives, privileges,
 architectures, directories, files, shortcuts, navigation policy, service lifecycle,
 migration, error reporting, signing and publishing. Native field validation and
 scrolling are retained. Folder-tree selection appends the configured suffix;
